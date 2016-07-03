@@ -58,9 +58,16 @@ class Robot
       response: new Middleware(@)
       receive:  new Middleware(@)
     @logger = new Winston.Logger { level: process.env.HUBOT_LOG_LEVEL or 'info' }
+    options =
+      timestamp: () -> return Date.now()
+    @logger.add(Winston.transports.Console, options)
     if process.env.HUBOT_SYSLOG_HOST
-      @logger.add(Winston.transports.Syslog, { host: process.env.HUBOT_SYSLOG_HOST, app_name: @name } );
-      @logger.setLevels(Winston.config.syslog.levels);
+      options =
+        host: process.env.HUBOT_SYSLOG_HOST
+        app_name: @name
+        localhost: process.env.HOSTNAME
+      @logger.add(Winston.transports.Syslog,options)
+      @logger.setLevels(Winston.config.syslog.levels)
     @pingIntervalId = null
     @globalHttpOptions = {}
 
