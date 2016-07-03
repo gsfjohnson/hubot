@@ -57,7 +57,7 @@ class Robot
       listener: new Middleware(@)
       response: new Middleware(@)
       receive:  new Middleware(@)
-    @logger = new Winston process.env.HUBOT_LOG_LEVEL or 'info'
+    @logger = new Winston.Logger { level: process.env.HUBOT_LOG_LEVEL or 'info' }
     if process.env.HUBOT_SYSLOG_HOST
       @logger.add(Winston.transports.Syslog, { host: process.env.HUBOT_SYSLOG_HOST, app_name: @name } );
       @logger.setLevels(Winston.config.syslog.levels);
