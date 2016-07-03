@@ -1,5 +1,5 @@
 Fs             = require 'fs'
-Log            = require 'log'
+Winston        = require 'winston'
 Path           = require 'path'
 HttpClient     = require 'scoped-http-client'
 {EventEmitter} = require 'events'
@@ -11,6 +11,8 @@ Response = require './response'
 {Listener,TextListener} = require './listener'
 {EnterMessage,LeaveMessage,TopicMessage,CatchAllMessage} = require './message'
 Middleware = require './middleware'
+
+require('winston-syslog').Syslog;
 
 HUBOT_DEFAULT_ADAPTERS = [
   'campfire'
@@ -55,7 +57,10 @@ class Robot
       listener: new Middleware(@)
       response: new Middleware(@)
       receive:  new Middleware(@)
-    @logger     = new Log process.env.HUBOT_LOG_LEVEL or 'info'
+    @logger = new Winston process.env.HUBOT_LOG_LEVEL or 'info'
+    if process.env.HUBOT_SYSLOG_HOST
+      @logger.add(Winston.transports.Syslog, { host: process.env.HUBOT_SYSLOG_HOST, app_name: @name } );
+      @logger.setLevels(Winston.config.syslog.levels);
     @pingIntervalId = null
     @globalHttpOptions = {}
 
